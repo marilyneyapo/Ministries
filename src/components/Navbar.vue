@@ -40,8 +40,61 @@
 
           <!-- Boutons d'action et Menu Mobile -->
           <div class="flex items-center gap-3">
-            <!-- Bouton de connexion (desktop) -->
-            <div class="hidden md:flex items-center gap-2">
+            <!-- Section utilisateur connecté (desktop) -->
+            <div v-if="authStore.isAuthenticated" class="hidden md:flex items-center gap-4">
+              <!-- Dropdown utilisateur -->
+              <div class="relative">
+                <button
+                  @click="showUserDropdown = !showUserDropdown"
+                  class="flex items-center gap-2 px-3 py-2 rounded-full hover:bg-gray-100 transition-all duration-300"
+                >
+                  <img
+                    :src="authStore.user?.avatar || '/user.png'"
+                    :alt="authStore.user?.name"
+                    class="w-8 h-8 rounded-full object-cover border-2 border-blue-200"
+                  />
+                  <span class="text-gray-700 font-medium">{{ authStore.user?.name }}</span>
+                  <svg class="w-4 h-4 text-gray-500 transition-transform" :class="{ 'rotate-180': showUserDropdown }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                  </svg>
+                </button>
+
+                <!-- Dropdown menu -->
+                <div
+                  v-if="showUserDropdown"
+                  class="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-gray-200 py-2 z-50"
+                >
+                  <div class="px-4 py-2 border-b border-gray-100">
+                    <p class="text-sm font-medium text-gray-900">{{ authStore.user?.name }}</p>
+                    <p class="text-xs text-gray-500">{{ authStore.user?.email }}</p>
+                  </div>
+                  
+                  <router-link
+                    to="/dashboard"
+                    @click="showUserDropdown = false"
+                    class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                  >
+                    <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2 2v10z"></path>
+                    </svg>
+                    Tableau de bord
+                  </router-link>
+                  
+                  <button
+                    @click="handleLogout"
+                    class="flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                  >
+                    <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path>
+                    </svg>
+                    Se déconnecter
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Boutons de connexion (desktop) - si non connecté -->
+            <div v-else class="hidden md:flex items-center gap-2">
               <router-link
                 to="/login"
                 class="px-4 py-2 text-blue-600 font-semibold hover:text-blue-700 transition-colors"
@@ -89,22 +142,61 @@
               {{ item.name }}
             </a>
             
-            <!-- Boutons d'action mobile -->
+            <!-- Section utilisateur mobile -->
             <div class="pt-4 border-t border-gray-200 space-y-2">
-              <router-link
-                to="/login"
-                @click="isMenuOpen = false"
-                class="block px-4 py-3 text-blue-600 font-semibold rounded-lg hover:bg-blue-50 transition-all"
-              >
-                Connexion
-              </router-link>
-              <router-link
-                to="/register"
-                @click="isMenuOpen = false"
-                class="block px-4 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all text-center"
-              >
-                S'inscrire
-              </router-link>
+              <!-- Si connecté -->
+              <div v-if="authStore.isAuthenticated">
+                <div class="flex items-center px-4 py-2 mb-3">
+                  <img
+                    :src="authStore.user?.avatar || '/user.png'"
+                    :alt="authStore.user?.name"
+                    class="w-10 h-10 rounded-full object-cover border-2 border-blue-200 mr-3"
+                  />
+                  <div>
+                    <p class="text-sm font-medium text-gray-900">{{ authStore.user?.name }}</p>
+                    <p class="text-xs text-gray-500">{{ authStore.user?.email }}</p>
+                  </div>
+                </div>
+                
+                <router-link
+                  to="/dashboard"
+                  @click="isMenuOpen = false"
+                  class="flex items-center px-4 py-3 text-blue-600 font-semibold rounded-lg hover:bg-blue-50 transition-all"
+                >
+                  <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2 2v10z"></path>
+                  </svg>
+                  Tableau de bord
+                </router-link>
+                
+                <button
+                  @click="handleLogout"
+                  class="flex items-center w-full px-4 py-3 text-red-600 font-semibold rounded-lg hover:bg-red-50 transition-all"
+                >
+                  <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path>
+                  </svg>
+                  Se déconnecter
+                </button>
+              </div>
+
+              <!-- Si non connecté -->
+              <div v-else>
+                <router-link
+                  to="/login"
+                  @click="isMenuOpen = false"
+                  class="block px-4 py-3 text-blue-600 font-semibold rounded-lg hover:bg-blue-50 transition-all"
+                >
+                  Connexion
+                </router-link>
+                <router-link
+                  to="/register"
+                  @click="isMenuOpen = false"
+                  class="block px-4 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all text-center"
+                >
+                  S'inscrire
+                </router-link>
+              </div>
             </div>
           </div>
         </div>
@@ -115,8 +207,16 @@
 
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue'
+import { useRouter } from 'vue-router'
+import { useAuthStore } from '../stores/auth.js'
+import { useNotification } from '../composables/useNotification.js'
+
+const router = useRouter()
+const authStore = useAuthStore()
+const { success } = useNotification()
 
 const isMenuOpen = ref(false)
+const showUserDropdown = ref(false)
 const scrolled = ref(false)
 
 const menuItems = [
@@ -139,10 +239,30 @@ const scrollToSection = (link) => {
   }
 }
 
+const handleLogout = () => {
+  authStore.logout()
+  showUserDropdown.value = false
+  isMenuOpen.value = false
+  success('Déconnexion réussie !')
+  
+  // Rediriger vers la page d'accueil
+  router.push('/')
+}
+
+// Fermer les dropdowns quand on clique ailleurs
+const handleClickOutside = (event) => {
+  if (showUserDropdown.value && !event.target.closest('.relative')) {
+    showUserDropdown.value = false
+  }
+}
+
 onMounted(() => {
   window.addEventListener('scroll', handleScroll)
+  document.addEventListener('click', handleClickOutside)
 })
+
 onUnmounted(() => {
   window.removeEventListener('scroll', handleScroll)
+  document.removeEventListener('click', handleClickOutside)
 })
 </script>

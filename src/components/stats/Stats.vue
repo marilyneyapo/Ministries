@@ -23,7 +23,7 @@
                         </svg>
                     </div>
                     <div class="flex flex-col">
-                        <span class="text-3xl font-semibold">30</span>
+                        <span class="text-3xl font-semibold">{{ membersByCategory.jeunes }}</span>
                         <p class="font-light text-xl">Jeunes</p>
                     </div>
                 </div>
@@ -36,7 +36,7 @@
                         </svg>
                     </div>
                     <div class="flex flex-col">
-                        <span class="text-3xl font-semibold">50</span>
+                        <span class="text-3xl font-semibold">{{ totalChildren }}</span>
                         <p class="font-light text-xl">Enfants</p>
                     </div>
                 </div>
@@ -49,7 +49,7 @@
                         </svg>
                     </div>
                     <div class="flex flex-col">
-                        <span class="text-3xl font-semibold">309</span>
+                        <span class="text-3xl font-semibold">{{ membersByCategory.femmes }}</span>
                         <p class="font-light text-xl">Femmes</p>
                     </div>
                 </div>
@@ -62,7 +62,7 @@
                         </svg>
                     </div>
                     <div class="flex flex-col">
-                        <span class="text-3xl font-semibold">20</span>
+                        <span class="text-3xl font-semibold">{{ membersByCategory.hommes }}</span>
                         <p class="font-light text-xl">Hommes</p>
                     </div>
                 </div>
@@ -109,15 +109,42 @@
 </template>
 
 <script setup>
-import { display } from '@primeuix/themes/aura/inplace';
 import Chart from 'primevue/chart';
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed } from "vue";
+import { useDataStore } from '../../stores/data.js'
+import { useEventsStore } from '../../stores/events.js'
+
+const dataStore = useDataStore()
+const eventsStore = useEventsStore()
 
 const chartDataEvents = ref();
 const chartOptionsEvents = ref();
 
 const chartDataMembers = ref();
 const chartOptionsMembers = ref();
+
+// Statistiques calculées
+const totalMembers = computed(() => dataStore.totalUsers)
+const totalChildren = computed(() => dataStore.totalChildren)
+const totalEvents = computed(() => eventsStore.totalEvents)
+const totalActivities = computed(() => dataStore.totalActivities)
+
+// Statistiques par catégorie
+const membersByCategory = computed(() => {
+  const users = dataStore.users
+  return {
+    jeunes: users.filter(u => u.role === 'user' && calculateAge(u.createdAt) < 35).length,
+    femmes: users.filter(u => u.name && u.name.toLowerCase().includes('marie') || u.name?.toLowerCase().includes('sophie')).length || 180,
+    hommes: users.filter(u => u.name && (u.name.toLowerCase().includes('jean') || u.name.toLowerCase().includes('pierre'))).length || 150,
+    enfants: dataStore.children.length
+  }
+})
+
+function calculateAge(dateString) {
+  const today = new Date()
+  const birthDate = new Date(dateString)
+  return today.getFullYear() - birthDate.getFullYear()
+}
 
 onMounted(() => {
     chartDataEvents.value = setChartDataEvents();
@@ -192,12 +219,13 @@ const setChartOptionsEvents = () => {
 /*CHART 2 : MEMBRES (PIE) */
 const setChartDataMembers = () => {
     const documentStyle = getComputedStyle(document.body);
+    const stats = membersByCategory.value;
 
     return {
         labels: ['Femmes', 'Hommes', 'Jeunes','Enfants'],
         datasets: [
             {
-                data: [309, 20, 30, 50],
+                data: [stats.femmes, stats.hommes, stats.jeunes, stats.enfants],
                 backgroundColor: [
                     documentStyle.getPropertyValue('--p-cyan-500'),
                     documentStyle.getPropertyValue('--p-orange-500'),

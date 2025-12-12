@@ -8,7 +8,7 @@
 
                     <!-- Titre -->
                     <div class="flex items-center gap-3 text-black">
-                        <div class="bg-gray-400 bg-opacity-20 p-3 rounded-xl backdrop-blur-sm">
+                        <div class="bg-gray-400 bg-opacity-20 p-3 rounded-xl backdrop-blur-sm ">
                             <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
@@ -91,8 +91,8 @@
                 </div>
 
                 <div class="hidden md:block overflow-x-auto">
-                    <table v-if="filteredEnfants.length" class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-50">
+                    <table v-if="filteredEnfants.length" class="min-w-full divide-y divide-gray-200 text-black">
+                        <thead class="bg-gray-50 text-black">
                             <tr>
                                 <th class="px-6 py-4 text-left text-xs font-bold uppercase">Nom et Prénoms</th>
                                 <th class="px-6 py-4 text-left text-xs font-bold uppercase">Âge</th>
@@ -158,7 +158,7 @@
 
         <!--MODAL-->
         <div v-if="showModal"
-             class="fixed inset-0 backdrop-blur-sm bg-opacity-50 flex items-center justify-center z-50">
+             class="fixed inset-0 backdrop-blur-sm bg-opacity-50 flex items-center justify-center z-50 text-black">
 
             <div class="bg-white rounded-xl shadow-xl w-full max-w-md p-6 relative animate-fadeIn">
 
@@ -208,8 +208,12 @@ import { useNotification } from '../../composables/useNotification.js'
 const dataStore = useDataStore()
 const { success, error } = useNotification()
 
-// Utiliser les données du store
+/* LISTE */
 const enfants = computed(() => dataStore.children)
+
+onMounted(async () => {
+  await dataStore.getChildren()
+})
 
 /* Recherche + Filtres */
 const search = ref("")
@@ -250,28 +254,44 @@ function closeModal() {
 }
 
 function saveEnfant() {
-    if (!form.value.nom || !form.value.prenom || !form.value.age || !form.value.photo)
-        return alert("Veuillez remplir tous les champs")
+    if (!form.value.nom || !form.value.prenom || !form.value.age)
+        return error("Veuillez remplir tous les champs obligatoires")
 
-    if (editMode.value) {
-        const idx = enfants.value.findIndex(e => e.id === form.value.id)
-        enfants.value[idx] = { ...form.value }
-    } else {
-        enfants.value.push({
-            id: Date.now(),
+    try {
+        const childData = {
             nom: form.value.nom,
             prenom: form.value.prenom,
             age: Number(form.value.age),
-            photo: form.value.photo ||""
-        })
-    }
+            photo: form.value.photo || "",
+            isActive: true
+        }
 
-    closeModal()
+        if (editMode.value) {
+            dataStore.updateChild(form.value.id, childData)
+            success('Enfant mis à jour avec succès!')
+        } else {
+            dataStore.addChild(childData)
+            success('Nouvel enfant ajouté avec succès!')
+        }
+
+        closeModal()
+    } catch (err) {
+        error('Erreur lors de la sauvegarde')
+        console.error(err)
+    }
 }
 
 /* Actions */
 function deleteEnfant(id) {
-    enfants.value = enfants.value.filter(e => e.id !== id)
+    if (confirm('Voulez-vous vraiment supprimer cet enfant ?')) {
+        try {
+            dataStore.deleteChild(id)
+            success('Enfant supprimé avec succès!')
+        } catch (err) {
+            error('Erreur lors de la suppression')
+            console.error(err)
+        }
+    }
 }
 
 function setAgeFilter(t) {

@@ -14,6 +14,7 @@ import Register from '../views/auth/Register.vue'
 import Login from '../views/auth/Login.vue'
 import ResetPassword from '../views/auth/ResetPassword.vue'
 import Stats from '../components/stats/Stats.vue'
+import Settings from '../views/admin/Settings.vue'
 
 const routes = [
   {
@@ -90,6 +91,12 @@ const routes = [
         name: 'Enfants', 
         component: Enfants,
         meta: { requiresAuth: true }
+      },
+      {
+        path: 'settings', 
+        name: 'Settings', 
+        component: Settings,
+        meta: { requiresAuth: true, requiresRole: ['admin'] }
       }
     ]
   },

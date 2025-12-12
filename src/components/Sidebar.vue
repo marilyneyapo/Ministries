@@ -11,7 +11,7 @@
       <!-- Header -->
       <div class="mb-8">
         <h1 class="text-2xl font-bold tracking-wide items-center gap-2 inline-flex">
-          <Icon icon="mdi:home-outline" width="40" height="40"/>          
+          <span class="text-4xl">🏠</span>
           DASHBOARD
         </h1>
       </div>
@@ -187,7 +187,7 @@
 
 <script setup>
 import { ref, watch } from 'vue';
-import { Icon } from '@iconify/vue';
+// import { Icon } from '@iconify/vue';
 import { useRoute } from 'vue-router';
 
 const route = useRoute();

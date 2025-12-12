@@ -293,7 +293,12 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
+import { useDataStore } from '../../stores/data.js'
+import { useNotification } from '../../composables/useNotification.js'
+
+const dataStore = useDataStore()
+const { success, error } = useNotification()
 
 const showForm = ref(false)
 const editingActivity = ref(null)
@@ -301,11 +306,7 @@ const filterType = ref('')
 const filterStatus = ref('')
 const search = ref('')
 
-const activities = ref([
-  { id: 1, nom: "Nettoyage de l'église", type: "nettoyage", date: "2025-11-23", heure: "9:00", responsable: "Marie", participants: ["Jean", "Paul"], statut: "planifie" },
-  { id: 2, nom: "Évangélisation quartier Nord", type: "evangelisation", date: "2025-11-23", heure: "8:00", responsable: "Jean", participants: ["Marie"], statut: "planifie" },
-  { id: 3, nom: "Visite orphelinat", type: "visite", date: "2025-11-24", heure: "15:00", responsable: "Comité Social", participants: ["Paul"], statut: "planifie" },
-])
+const activities = computed(() => dataStore.activities)
 
 const form = ref({
   nom: '',
@@ -315,6 +316,10 @@ const form = ref({
   responsable: '',
   participantsStr: '',
   statut: 'planifie',
+})
+
+onMounted(async () => {
+  await dataStore.getActivities()
 })
 
 const filteredActivities = computed(() => {
@@ -397,14 +402,26 @@ function closeForm() {
 }
 
 function saveActivity() {
-  const participants = form.value.participantsStr ? form.value.participantsStr.split(',').map(p => p.trim()) : []
-  if (editingActivity.value) {
-    Object.assign(editingActivity.value, { ...form.value, participants })
-  } else {
-    const newActivity = { id: Date.now(), ...form.value, participants }
-    activities.value.push(newActivity)
+  try {
+    const participants = form.value.participantsStr ? form.value.participantsStr.split(',').map(p => p.trim()) : []
+    const activityData = { 
+      ...form.value, 
+      participants,
+      isActive: true
+    }
+    
+    if (editingActivity.value) {
+      dataStore.updateActivity(editingActivity.value.id, activityData)
+      success('Activité mise à jour avec succès!')
+    } else {
+      dataStore.addActivity(activityData)
+      success('Nouvelle activité créée avec succès!')
+    }
+    closeForm()
+  } catch (err) {
+    error('Erreur lors de la sauvegarde de l\'activité')
+    console.error(err)
   }
-  closeForm()
 }
 
 function editActivity(activity) {
@@ -423,7 +440,13 @@ function editActivity(activity) {
 
 function deleteActivity(id) {
   if (confirm("Voulez-vous vraiment supprimer cette activité ?")) {
-    activities.value = activities.value.filter(a => a.id !== id)
+    try {
+      dataStore.deleteActivity(id)
+      success('Activité supprimée avec succès!')
+    } catch (err) {
+      error('Erreur lors de la suppression de l\'activité')
+      console.error(err)
+    }
   }
 }
 </script>

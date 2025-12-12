@@ -1,8 +1,8 @@
 export const mockChildren = [
   {
     id: 1,
-    firstName: 'Lucas',
-    lastName: 'Dubois',
+    nom: 'Dubois',
+    prenom: 'Lucas',
     age: 8,
     birthDate: '2016-03-15',
     parentName: 'Marie Dubois',
@@ -18,8 +18,8 @@ export const mockChildren = [
   },
   {
     id: 2,
-    firstName: 'Emma',
-    lastName: 'Leroy',
+    nom: 'Leroy',
+    prenom: 'Emma',
     age: 10,
     birthDate: '2014-07-22',
     parentName: 'Pierre Leroy',
@@ -35,8 +35,8 @@ export const mockChildren = [
   },
   {
     id: 3,
-    firstName: 'Noah',
-    lastName: 'Martin',
+    nom: 'Martin',
+    prenom: 'Noah',
     age: 7,
     birthDate: '2017-11-08',
     parentName: 'Sophie Martin',
@@ -52,8 +52,8 @@ export const mockChildren = [
   },
   {
     id: 4,
-    firstName: 'Chloé',
-    lastName: 'Bernard',
+    nom: 'Bernard',
+    prenom: 'Chloé',
     age: 9,
     birthDate: '2015-12-03',
     parentName: 'Jean Bernard',
@@ -69,8 +69,8 @@ export const mockChildren = [
   },
   {
     id: 5,
-    firstName: 'Léo',
-    lastName: 'Petit',
+    nom: 'Petit',
+    prenom: 'Léo',
     age: 11,
     birthDate: '2013-05-18',
     parentName: 'Anne Petit',
@@ -83,5 +83,39 @@ export const mockChildren = [
     isActive: true,
     activities: ['informatique', 'échecs'],
     photo: '/user.png'
+  },
+  {
+    id: 6,
+    nom: 'Kouassi',
+    prenom: 'Ange',
+    age: 6,
+    birthDate: '2018-02-14',
+    parentName: 'Pasteur Jean Kouassi',
+    parentEmail: 'jean@eglise.com',
+    parentPhone: '+33 6 12 34 56 78',
+    address: '123 Rue de la Paix, Paris',
+    medicalInfo: 'Aucune allergie connue',
+    emergencyContact: 'Maman - +33 6 11 22 33 44',
+    registrationDate: '2024-09-01',
+    isActive: true,
+    activities: ['chant', 'dessin'],
+    photo: ''
+  },
+  {
+    id: 7,
+    nom: 'Yao',
+    prenom: 'Samuel',
+    age: 12,
+    birthDate: '2012-09-30',
+    parentName: 'Grace Yao',
+    parentEmail: 'grace@eglise.com',
+    parentPhone: '+33 6 45 67 89 01',
+    address: '321 Rue de la Foi, Toulouse',
+    medicalInfo: 'Aucune allergie connue',
+    emergencyContact: 'Papa - +33 6 55 66 77 88',
+    registrationDate: '2024-10-01',
+    isActive: true,
+    activities: ['football', 'bible'],
+    photo: ''
   }
 ]

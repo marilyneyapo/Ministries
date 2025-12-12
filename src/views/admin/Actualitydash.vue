@@ -188,8 +188,7 @@
               </button>
               <button 
                 @click="deleteActualite(actu.id)" 
-                class="p-2 bg-white bg-opacity-90 backdrop-blur-sm hover:bg-red
-                -500 hover:text-white rounded-lg transition-all shadow-lg">
+                class="p-2 bg-white bg-opacity-90 backdrop-blur-sm hover:bg-red-500 hover:text-white rounded-lg transition-all shadow-lg">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
                 </svg>
@@ -233,16 +232,14 @@
         <p class="text-gray-600 mb-6">Modifiez vos filtres ou créez une nouvelle actualité</p>
         <button 
           @click="openForm()"
-          class="px-6 py-3 bg-gradient-to-r from-blue-600 to-red
-          -600 text-white rounded-lg hover:from-blue-700 hover:to-red
-          -700 transition-all shadow-lg">
+          class="px-6 py-3 bg-gradient-to-r from-blue-600 to-red-600 text-white rounded-lg hover:from-blue-700 hover:to-red-700 transition-all shadow-lg">
           Créer ma première actualité
         </button>
       </div>
     </div>
 
     <!-- Modal Formulaire -->
-    <div v-if="showForm" class="fixed inset-0 backdrop-blur-sm bg-opacity-50 flex justify-center items-center z-50 p-4 backdrop-blur-sm">
+    <div v-if="showForm" class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 p-4 backdrop-blur-sm">
       <div class="bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto slide-up">
         <!-- En-tête du modal -->
         <div class="bg-gradient-to-r from-blue-600 to-cyan-600 p-6 text-white rounded-t-2xl">
@@ -363,7 +360,12 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
+import { useNewsStore } from '../../stores/news.js'
+import { useNotification } from '../../composables/useNotification.js'
+
+const newsStore = useNewsStore()
+const { success, error } = useNotification()
 
 const showForm = ref(false)
 const selectedActualite = ref(null)
@@ -371,19 +373,7 @@ const searchQuery = ref('')
 const filterCategory = ref('')
 const filterStatus = ref('')
 
-const actualites = ref([
-  { 
-    id: 1, 
-    titre: 'Nouvelle campagne d\'évangélisation', 
-    contenu: 'Rejoignez-nous pour une grande campagne d\'évangélisation dans le quartier Nord. Ensemble, partageons la bonne nouvelle!',
-    categorie: 'Annonce',
-    date: '2025-11-25',
-    auteur: 'Pasteur Jean',
-    image: null,
-    publiee: true
-  },
-
-])
+const actualites = computed(() => newsStore.news)
 
 const actualiteForm = ref({
   titre: '',
@@ -393,6 +383,10 @@ const actualiteForm = ref({
   auteur: '',
   image: null,
   publiee: false
+})
+
+onMounted(async () => {
+  await newsStore.getNews()
 })
 
 const filteredActualites = computed(() => {
@@ -472,22 +466,41 @@ function closeForm() {
 }
 
 function saveActualite() {
-  if (selectedActualite.value) {
-    const index = actualites.value.findIndex(a => a.id === selectedActualite.value.id)
-    actualites.value[index] = { ...actualiteForm.value, id: selectedActualite.value.id }
-  } else {
-    actualites.value.push({ id: Date.now(), ...actualiteForm.value })
+  try {
+    if (selectedActualite.value) {
+      newsStore.updateNews(selectedActualite.value.id, actualiteForm.value)
+      success('Actualité mise à jour avec succès!')
+    } else {
+      newsStore.addNews(actualiteForm.value)
+      success('Nouvelle actualité créée avec succès!')
+    }
+    closeForm()
+  } catch (err) {
+    error('Erreur lors de la sauvegarde de l\'actualité')
+    console.error(err)
   }
-  closeForm()
 }
 
 function deleteActualite(id) {
   if (confirm('Voulez-vous vraiment supprimer cette actualité ?')) {
-    actualites.value = actualites.value.filter(a => a.id !== id)
+    try {
+      newsStore.deleteNews(id)
+      success('Actualité supprimée avec succès!')
+    } catch (err) {
+      error('Erreur lors de la suppression de l\'actualité')
+      console.error(err)
+    }
   }
 }
 
 function togglePublish(actualite) {
-  actualite.publiee = !actualite.publiee
+  try {
+    const updatedData = { ...actualite, publiee: !actualite.publiee }
+    newsStore.updateNews(actualite.id, updatedData)
+    success(updatedData.publiee ? 'Actualité publiée!' : 'Actualité dépubliée!')
+  } catch (err) {
+    error('Erreur lors de la modification du statut')
+    console.error(err)
+  }
 }
 </script>

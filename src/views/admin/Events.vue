@@ -103,6 +103,17 @@
       </div>
     </div>
 
+    <!-- Debug info -->
+    <div class="bg-yellow-100 p-4 rounded-lg mb-4">
+      <p><strong>Debug:</strong> Nombre d'événements: {{ evenements.length }}</p>
+      <p><strong>Debug:</strong> Événements filtrés: {{ filteredEvents.length }}</p>
+      <p><strong>Debug:</strong> Recherche: "{{ searchQuery }}"</p>
+      <p><strong>Debug:</strong> Filtre type: "{{ filterType }}"</p>
+      <button @click="testEvents" class="bg-blue-500 text-white px-4 py-2 rounded mt-2">
+        Test Events Store
+      </button>
+    </div>
+
     <!-- Liste des événements -->
     <div v-if="filteredEvents.length" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       <div 
@@ -293,13 +304,14 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
+import { useEventsStore } from '../../stores/events.js'
+import { useNotification } from '../../composables/useNotification.js'
 
-const evenements = ref([
-  { id: 1, titre: 'Concert gospel', description: 'Concert au centre ville', type: 'Concert', date: '2025-12-25', image: null },
-  { id: 2, titre: 'Baptême de Samuel', description: 'Baptême à l\'église centrale', type: 'Baptême', date: '2025-11-30', image: null },
-  { id: 3, titre: 'Retraite spirituelle', description: 'Week-end de retraite à la montagne', type: 'Retraite', date: '2025-12-10', image: null }
-])
+const eventsStore = useEventsStore()
+const { success, error } = useNotification()
+
+const evenements = computed(() => eventsStore.events)
 
 const showForm = ref(false)
 const selectedEvent = ref(null)
@@ -402,18 +414,41 @@ function closeForm() {
 }
 
 function saveEvent() {
-  if (selectedEvent.value) {
-    const index = evenements.value.findIndex(e => e.id === selectedEvent.value.id)
-    evenements.value[index] = { ...eventForm.value, id: selectedEvent.value.id }
-  } else {
-    evenements.value.push({ id: Date.now(), ...eventForm.value })
+  try {
+    if (selectedEvent.value) {
+      eventsStore.updateEvent(selectedEvent.value.id, eventForm.value)
+      success('Événement modifié avec succès !')
+    } else {
+      eventsStore.addEvent(eventForm.value)
+      success('Nouvel événement créé avec succès !')
+    }
+    closeForm()
+  } catch (err) {
+    error('Erreur lors de la sauvegarde de l\'événement')
   }
-  closeForm()
 }
 
 function deleteEvent(id) {
   if (confirm('Voulez-vous vraiment supprimer cet événement ?')) {
-    evenements.value = evenements.value.filter(e => e.id !== id)
+    try {
+      eventsStore.deleteEvent(id)
+      success('Événement supprimé avec succès !')
+    } catch (err) {
+      error('Erreur lors de la suppression de l\'événement')
+    }
   }
 }
+
+function testEvents() {
+  console.log('Test Events - Store:', eventsStore)
+  console.log('Test Events - Events from store:', eventsStore.events)
+  console.log('Test Events - Computed evenements:', evenements.value)
+  success(`Événements trouvés: ${evenements.value.length}`)
+}
+
+onMounted(async () => {
+  console.log('Events.vue - Montage du composant')
+  await eventsStore.getEvents()
+  console.log('Events.vue - Événements chargés:', evenements.value)
+})
 </script>

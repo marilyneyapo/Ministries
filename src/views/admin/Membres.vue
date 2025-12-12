@@ -276,13 +276,15 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
+import { useDataStore } from '../../stores/data.js'
+import { useNotification } from '../../composables/useNotification.js'
 
-/* --- Données initiales --- */
-const membres = ref([
-  { id: 1, nom: 'Jean Dupont', role: 'Membre', groupe_id: 2, departement_id: 1, est_responsable: false },
-  { id: 2, nom: 'Marie Curie', role: 'Responsable', groupe_id: 1, departement_id: 2, est_responsable: true }
-])
+const dataStore = useDataStore()
+const { success, error } = useNotification()
+
+/* --- Données du store --- */
+const membres = computed(() => dataStore.users)
 
 const groupes = ref([
   { id: 1, nom: 'Femmes' }, // Femmes
@@ -331,10 +333,10 @@ function countByGroup(id) {
 
 /* --- Helpers --- */
 function getGroupIcon(nom) {
-  if (nom === 'F') return '👩'
-  if (nom === 'H') return '👨'
-  if (nom === 'J') return '👦'
-  return ''
+  if (nom === 'Femmes') return '👩'
+  if (nom === 'Hommes') return '👨'
+  if (nom === 'Jeunes') return '👦'
+  return '👤'
 }
 
 function getInitials(nom) {
@@ -354,17 +356,22 @@ function closeForm() {
 
 function saveMember() {
   if (memberForm.value.departement_id && !memberForm.value.groupe_id) {
-    alert("Un membre dans un département doit obligatoirement appartenir à un groupe.")
+    error("Un membre dans un département doit obligatoirement appartenir à un groupe.")
     return
   }
 
-  if (selectedMember.value) {
-    const index = membres.value.findIndex(m => m.id === selectedMember.value.id)
-    membres.value[index] = { ...memberForm.value, id: selectedMember.value.id }
-  } else {
-    membres.value.push({ id: Date.now(), ...memberForm.value })
+  try {
+    if (selectedMember.value) {
+      dataStore.updateUser(selectedMember.value.id, memberForm.value)
+      success('Membre modifié avec succès !')
+    } else {
+      dataStore.addUser(memberForm.value)
+      success('Nouveau membre ajouté avec succès !')
+    }
+    closeForm()
+  } catch (err) {
+    error('Erreur lors de la sauvegarde du membre')
   }
-  closeForm()
 }
 
 function editMember(m) {
@@ -375,7 +382,12 @@ function editMember(m) {
 
 function deleteMember(id) {
   if (confirm("Voulez-vous vraiment supprimer ce membre ?")) {
-    membres.value = membres.value.filter(m => m.id !== id)
+    try {
+      dataStore.deleteUser(id)
+      success('Membre supprimé avec succès !')
+    } catch (err) {
+      error('Erreur lors de la suppression du membre')
+    }
   }
 }
 </script>
