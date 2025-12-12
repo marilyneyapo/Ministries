@@ -1,0 +1,80 @@
+export const mockNews = [
+  {
+    id: 1,
+    title: 'Nouvelle saison d\'activités 2025',
+    content: 'Nous sommes ravis d\'annoncer le lancement de notre nouvelle saison d\'activités pour 2025. De nombreuses nouveautés vous attendent, notamment un atelier de robotique et des cours de danse moderne. Les inscriptions sont ouvertes dès maintenant.',
+    excerpt: 'Découvrez notre nouvelle programmation d\'activités pour 2025 avec de nombreuses nouveautés.',
+    author: 'Marie Martin',
+    publishedAt: '2024-12-01',
+    category: 'annonce',
+    status: 'published',
+    image: '/image1.jpeg',
+    tags: ['activités', 'inscription', '2025'],
+    views: 245
+  },
+  {
+    id: 2,
+    title: 'Succès du tournoi de football inter-centres',
+    content: 'Le tournoi de football qui s\'est déroulé le weekend dernier a été un franc succès. Plus de 100 jeunes ont participé à cet événement sportif qui a rassemblé 8 centres de jeunesse de la région. Félicitations à l\'équipe des "Lions" qui a remporté la compétition.',
+    excerpt: 'Retour sur le tournoi de football inter-centres qui a rassemblé plus de 100 participants.',
+    author: 'Pierre Durand',
+    publishedAt: '2024-11-28',
+    category: 'sport',
+    status: 'published',
+    image: '/image2.jpeg',
+    tags: ['football', 'tournoi', 'sport'],
+    views: 189
+  },
+  {
+    id: 3,
+    title: 'Exposition des œuvres d\'art des jeunes artistes',
+    content: 'Du 15 au 30 décembre, venez découvrir l\'exposition des créations réalisées par nos jeunes artistes dans l\'atelier d\'arts plastiques. Peintures, sculptures et installations seront présentées dans la galerie principale. L\'entrée est libre et ouverte à tous.',
+    excerpt: 'Exposition des créations artistiques de nos jeunes du 15 au 30 décembre.',
+    author: 'Sophie Moreau',
+    publishedAt: '2024-12-05',
+    category: 'culture',
+    status: 'published',
+    image: '/image3.jpeg',
+    tags: ['art', 'exposition', 'culture'],
+    views: 156
+  },
+  {
+    id: 4,
+    title: 'Formation premiers secours pour les animateurs',
+    content: 'Dans le cadre de notre politique de sécurité, tous nos animateurs suivront une formation aux premiers secours les 20 et 21 décembre. Cette formation, dispensée par la Croix-Rouge, permettra de renforcer nos compétences en matière de sécurité des jeunes.',
+    excerpt: 'Formation premiers secours obligatoire pour tous les animateurs les 20 et 21 décembre.',
+    author: 'Admin User',
+    publishedAt: '2024-12-08',
+    category: 'formation',
+    status: 'published',
+    image: '/image4.jpeg',
+    tags: ['formation', 'sécurité', 'animateurs'],
+    views: 98
+  },
+  {
+    id: 5,
+    title: 'Collecte de jouets pour Noël',
+    content: 'Comme chaque année, nous organisons une collecte de jouets pour les enfants défavorisés. Vous pouvez déposer vos dons à l\'accueil jusqu\'au 20 décembre. Tous les jouets en bon état sont les bienvenus. Merci pour votre générosité !',
+    excerpt: 'Participez à notre collecte de jouets de Noël jusqu\'au 20 décembre.',
+    author: 'Jean Dupont',
+    publishedAt: '2024-12-10',
+    category: 'solidarité',
+    status: 'published',
+    image: '/image5.jpeg',
+    tags: ['noël', 'solidarité', 'collecte'],
+    views: 203
+  },
+  {
+    id: 6,
+    title: 'Nouveau partenariat avec la médiathèque',
+    content: 'Nous avons le plaisir d\'annoncer notre nouveau partenariat avec la médiathèque municipale. Grâce à cette collaboration, nos jeunes pourront bénéficier d\'ateliers de lecture, de séances de contes et d\'un accès privilégié aux ressources numériques.',
+    excerpt: 'Découvrez notre nouveau partenariat avec la médiathèque municipale.',
+    author: 'Marie Martin',
+    publishedAt: '2024-12-12',
+    category: 'partenariat',
+    status: 'draft',
+    image: '/image1.png',
+    tags: ['partenariat', 'lecture', 'médiathèque'],
+    views: 45
+  }
+]
