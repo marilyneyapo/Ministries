@@ -60,7 +60,7 @@ const routes = [
         path: 'membres', 
         name: 'Membres',
         component: Membres,
-        meta: { requiresAuth: true, requiresRole: ['admin', 'moderator'] }
+        meta: { requiresAuth: true }
       },
       {
         path: 'events', 
@@ -78,7 +78,7 @@ const routes = [
         path: 'actuality', 
         name: 'Actuality', 
         component: Actualitydash,
-        meta: { requiresAuth: true, requiresRole: ['admin', 'moderator'] }
+        meta: { requiresAuth: true, }
       },
       {
         path: 'programme', 
@@ -96,7 +96,7 @@ const routes = [
         path: 'settings', 
         name: 'Settings', 
         component: Settings,
-        meta: { requiresAuth: true, requiresRole: ['admin'] }
+        meta: { requiresAuth: true}
       }
     ]
   },

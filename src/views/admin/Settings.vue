@@ -1,22 +1,11 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-    <!-- En-tête -->
-    <div class="bg-gray-200 shadow-xl">
-      <div class="container mx-auto px-4 md:px-8 py-6">
-        <div class="flex items-center gap-3 text-black">
-          <div class="bg-gray-400 bg-opacity-20 p-3 rounded-xl backdrop-blur-sm">
-            <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-            </svg>
-          </div>
-          <div>
-            <h1 class="text-3xl md:text-4xl font-bold">Paramètres</h1>
-            <p class="text-black text-sm">Configuration et préférences de l'application</p>
-          </div>
-        </div>
-      </div>
-    </div>
+  <div class="min-h-screen bg-gray-50">
+    <!-- En-tête commun -->
+    <AdminHeader
+      title="Paramètres"
+      description="Configuration et préférences de l'application"
+      icon="settings"
+    />
 
     <div class="container mx-auto px-4 md:px-8 py-8">
       <!-- Sections de paramètres -->
@@ -205,6 +194,7 @@
 <script setup>
 import { ref } from 'vue'
 import { useNotification } from '../../composables/useNotification.js'
+import AdminHeader from '../../components/layout/AdminHeader.vue'
 
 const { success, error } = useNotification()
 
@@ -256,20 +246,105 @@ function changePassword() {
 
 function exportData() {
   try {
-    // Simuler l'export des données
-    const data = {
-      exported_at: new Date().toISOString(),
-      settings: settings.value
-    }
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
+    // Préparer les données pour l'export Excel
+    const exportDate = new Date().toLocaleDateString('fr-FR')
+    const exportTime = new Date().toLocaleTimeString('fr-FR')
+    
+    // Créer le contenu Excel en format HTML (compatible Excel)
+    const excelContent = `
+      <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
+        <head>
+          <meta charset="UTF-8">
+          <style>
+            .header { font-weight: bold; background-color: #4F46E5; color: white; text-align: center; }
+            .section { font-weight: bold; background-color: #E5E7EB; }
+            .data { border: 1px solid #D1D5DB; }
+            table { border-collapse: collapse; width: 100%; }
+            td, th { border: 1px solid #D1D5DB; padding: 8px; text-align: left; }
+          </style>
+        </head>
+        <body>
+          <table>
+            <tr>
+              <td colspan="2" class="header">EXPORT DES PARAMÈTRES DE L'ÉGLISE</td>
+            </tr>
+            <tr>
+              <td class="section">Date d'export</td>
+              <td class="data">${exportDate} à ${exportTime}</td>
+            </tr>
+            <tr>
+              <td colspan="2" class="section">INFORMATIONS DE L'ÉGLISE</td>
+            </tr>
+            <tr>
+              <td class="data">Nom de l'église</td>
+              <td class="data">${settings.value.churchName}</td>
+            </tr>
+            <tr>
+              <td class="data">Adresse</td>
+              <td class="data">${settings.value.address}</td>
+            </tr>
+            <tr>
+              <td class="data">Téléphone</td>
+              <td class="data">${settings.value.phone}</td>
+            </tr>
+            <tr>
+              <td class="data">Email</td>
+              <td class="data">${settings.value.email}</td>
+            </tr>
+            <tr>
+              <td colspan="2" class="section">PARAMÈTRES DE NOTIFICATION</td>
+            </tr>
+            <tr>
+              <td class="data">Notifications par email</td>
+              <td class="data">${settings.value.emailNotifications ? 'Activé' : 'Désactivé'}</td>
+            </tr>
+            <tr>
+              <td class="data">Notifications push</td>
+              <td class="data">${settings.value.pushNotifications ? 'Activé' : 'Désactivé'}</td>
+            </tr>
+            <tr>
+              <td class="data">Notifications d'événements</td>
+              <td class="data">${settings.value.eventNotifications ? 'Activé' : 'Désactivé'}</td>
+            </tr>
+            <tr>
+              <td colspan="2" class="section">PARAMÈTRES D'AFFICHAGE</td>
+            </tr>
+            <tr>
+              <td class="data">Thème</td>
+              <td class="data">${settings.value.theme === 'light' ? 'Clair' : settings.value.theme === 'dark' ? 'Sombre' : 'Automatique'}</td>
+            </tr>
+            <tr>
+              <td class="data">Langue</td>
+              <td class="data">${settings.value.language === 'fr' ? 'Français' : 'English'}</td>
+            </tr>
+            <tr>
+              <td class="data">Éléments par page</td>
+              <td class="data">${settings.value.itemsPerPage}</td>
+            </tr>
+          </table>
+        </body>
+      </html>
+    `
+    
+    // Créer le blob avec le type Excel
+    const blob = new Blob([excelContent], { 
+      type: 'application/vnd.ms-excel;charset=utf-8' 
+    })
+    
+    // Créer le lien de téléchargement
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
-    a.download = 'church_settings_export.json'
+    a.download = `parametres_eglise_${new Date().toISOString().split('T')[0]}.xls`
+    document.body.appendChild(a)
     a.click()
-    success('Données exportées avec succès!')
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+    
+    success('Données exportées en Excel avec succès!')
   } catch (err) {
     error('Erreur lors de l\'export des données')
+    console.error(err)
   }
 }
 

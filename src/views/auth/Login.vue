@@ -32,7 +32,7 @@
                   v-model="password"
                   type="password"
                   placeholder="Entrez votre mot de passe"
-                  class="w-full px-4 py-2.5 pl-12 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-indigo-500 transition-all bg-gray-50 focus:bg-white"
+                  class="w-full px-4 py-2.5 pl-12 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-indigo-500 transition-all bg-gray-50 focus:bg-white text-black"
                   @keyup.enter="handleLogin"
                 />
                 <svg xmlns="http://www.w3.org/2000/svg" class="absolute left-4 top-3.5 h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -54,30 +54,11 @@
                   v-model="email"
                   type="email"
                   placeholder="exemple@gmail.com"
-                  class="w-full px-4 py-2.5 pl-12 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-indigo-500 transition-all bg-gray-50 focus:bg-white"
+                  class="w-full px-4 py-2.5 pl-12 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-indigo-500 transition-all bg-gray-50 focus:bg-white text-black"
                 />
                 <svg xmlns="http://www.w3.org/2000/svg" class="absolute left-4 top-3.5 h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                 </svg>
-              </div>
-            </div>
-
-            <!-- Comptes de test -->
-            <div class="bg-gray-50 p-4 rounded-lg">
-              <p class="text-sm font-semibold text-gray-700 mb-2">Comptes de test :</p>
-              <div class="flex gap-2">
-                <button
-                  @click="loginAsAdmin"
-                  class="px-3 py-1 bg-red-100 text-red-700 rounded text-xs hover:bg-red-200"
-                >
-                  Admin
-                </button>
-                <button
-                  @click="loginAsUser"
-                  class="px-3 py-1 bg-blue-100 text-blue-700 rounded text-xs hover:bg-blue-200"
-                >
-                  Utilisateur
-                </button>
               </div>
             </div>
 
@@ -147,8 +128,8 @@ const router = useRouter()
 const authStore = useAuthStore()
 const { success, error } = useNotification()
 
-const email = ref('admin@jeunesse.com') // Pré-rempli pour test
-const password = ref('123456') // Pré-rempli pour test
+const email = ref('')
+const password = ref('')
 const rememberMe = ref(false)
 const isLoading = ref(false)
 
@@ -174,16 +155,5 @@ async function handleLogin() {
   } finally {
     isLoading.value = false
   }
-}
-
-// Fonction pour tester avec différents comptes
-function loginAsAdmin() {
-  email.value = 'admin@jeunesse.com'
-  password.value = '123456'
-}
-
-function loginAsUser() {
-  email.value = 'jean@jeunesse.com'
-  password.value = '123456'
 }
 </script>

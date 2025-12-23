@@ -1,34 +1,13 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-b from-blue-50 via-indigo-100 to-purple-100">
-
-    <!-- En-tête -->
-    <div class="bg-gray-200 shadow-xl">
-      <div class="container mx-auto px-4 md:px-8 py-6 flex flex-col md:flex-row items-center justify-between gap-4">
-        <div class="flex items-center gap-3 text-black">
-          <div class="bg-gray-400 bg-opacity-20 p-3 rounded-xl backdrop-blur-sm">
-            <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
-            </svg>
-          </div>
-          <div>
-            <h1 class="text-3xl md:text-4xl font-bold">Gestion des Membres</h1>
-            <p class="text-black text-sm">Administration et suivi des membres de l'église</p>
-          </div>
-        </div>
-        <div class="w-full md:w-auto">
-          <div class="relative">
-            <input v-model="search" type="text" placeholder="Rechercher un membre..."
-              class="w-full md:w-80 px-4 py-3 pl-10 rounded-xl border-2 border-white border-opacity-30 bg-white bg-opacity-90 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-white focus:bg-white transition-all" />
-            <svg class="w-5 h-5 text-gray-400 absolute left-3 top-3.5" fill="none" stroke="currentColor"
-              viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-            </svg>
-          </div>
-        </div>
-      </div>
-    </div>
+  <div class="min-h-screen bg-gray-50">
+    <!-- En-tête commun -->
+    <AdminHeader
+      title="Gestion des Membres"
+      description="Administration et suivi des membres de l'église"
+      :show-search="true"
+      v-model:search-value="search"
+      search-placeholder="Rechercher un membre..."
+    />
 
     <div class="container mx-auto px-4 md:px-8 py-8">
 
@@ -86,30 +65,30 @@
         </div>
       </div>
 
-      <!-- Filtres et actions -->
-      <div class="bg-white rounded-xl shadow-lg p-6 mb-8 flex flex-col md:flex-row items-center justify-between gap-4">
-        <div class="flex flex-wrap gap-2">
-          <button @click="clearFilter"
-            :class="activeGroupe === null ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
-            class="px-4 py-2 rounded-lg font-semibold transition-all shadow-sm hover:shadow-md">
-            Tous ({{ membres.length }})
-          </button>
-          <button v-for="g in groupes" :key="g.id" @click="filterGroupe(g.id)"
-            :class="activeGroupe === g.id ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
-            class="px-4 py-2 rounded-lg font-semibold transition-all shadow-sm hover:shadow-md flex items-center gap-2">
-            <span class="text-xl">{{ getGroupIcon(g.nom) }}</span>
-            {{ g.nom }} ({{ countByGroup(g.id) }})
+        <!-- Filtres et actions -->
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-8 flex flex-col md:flex-row items-center justify-between gap-4">
+          <div class="flex flex-wrap gap-2">
+            <button @click="clearFilter"
+              :class="activeGroupe === null ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
+              class="px-4 py-2 rounded-lg font-semibold transition-all shadow-sm hover:shadow-md">
+              Tous ({{ membres.length }})
+            </button>
+            <button v-for="g in groupes" :key="g.id" @click="filterGroupe(g.id)"
+              :class="activeGroupe === g.id ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
+              class="px-4 py-2 rounded-lg font-semibold transition-all shadow-sm hover:shadow-md flex items-center gap-2">
+              <span class="text-xl">{{ getGroupIcon(g.nom) }}</span>
+              {{ g.nom }} ({{ countByGroup(g.id) }})
+            </button>
+          </div>
+
+          <button @click="openForm"
+            class="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-6 py-3 rounded-xl hover:from-green-600 hover:to-emerald-600 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 font-semibold flex items-center gap-2 whitespace-nowrap">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+            </svg>
+            Nouveau membre
           </button>
         </div>
-
-        <button @click="openForm"
-          class="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-6 py-3 rounded-xl hover:from-green-600 hover:to-emerald-600 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 font-semibold flex items-center gap-2 whitespace-nowrap">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-          </svg>
-          Nouveau membre
-        </button>
-      </div>
 
       <!-- Tableau -->
       <div class="bg-white rounded-xl shadow-lg overflow-hidden">
@@ -279,6 +258,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useDataStore } from '../../stores/data.js'
 import { useNotification } from '../../composables/useNotification.js'
+import AdminHeader from '../../components/layout/AdminHeader.vue'
 
 const dataStore = useDataStore()
 const { success, error } = useNotification()

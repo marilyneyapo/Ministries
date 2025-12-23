@@ -1,47 +1,18 @@
 <template>
-    <div class="min-h-screen bg-gradient-to-b from-blue-50 via-indigo-100 to-purple-100">
-
-        <!-- En-tête -->
-        <div class="bg-gray-200 shadow-xl">
-            <div class="container mx-auto px-4 md:px-8 py-6">
-                <div class="flex flex-col md:flex-row items-center justify-between gap-4">
-
-                    <!-- Titre -->
-                    <div class="flex items-center gap-3 text-black">
-                        <div class="bg-gray-400 bg-opacity-20 p-3 rounded-xl backdrop-blur-sm ">
-                            <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
-                            </svg>
-                        </div>
-                        <div>
-                            <h1 class="text-3xl md:text-4xl font-bold">Gestion des Enfants</h1>
-                            <p class="text-black text-sm">Administration et suivi des plus petits de l'église</p>
-                        </div>
-                    </div>
-
-                    <!-- Recherche -->
-                    <div class="w-full md:w-auto">
-                        <div class="relative">
-                            <input v-model="search" type="text" placeholder="Rechercher un enfant..."
-                                class="w-full md:w-80 px-4 py-3 pl-10 rounded-xl border-2 border-white border-opacity-30 bg-white bg-opacity-90 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-white focus:bg-white transition-all" />
-                            <svg class="w-5 h-5 text-gray-400 absolute left-3 top-3.5" fill="none" stroke="currentColor"
-                                viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-                            </svg>
-                        </div>
-                    </div>
-
-                </div>
-            </div>
-        </div>
+    <div class="min-h-screen bg-gray-50">
+        <!-- En-tête commun -->
+        <AdminHeader
+            title="Gestion des Enfants"
+            description="Administration et suivi des plus petits de l'église"
+            :show-search="true"
+            v-model:search-value="search"
+            search-placeholder="Rechercher un enfant..."
+        />
 
         <div class="container mx-auto px-4 md:px-8 py-8">
 
             <!-- ********** FILTRES ********** -->
             <div class="bg-white rounded-xl shadow-lg p-6 mb-8 flex flex-wrap gap-3 items-center justify-between">
-
                 <button @click="setAgeFilter(null)"
                     :class="ageFilter === null ? activeBtn : normalBtn"
                     class="px-4 py-2 rounded-lg font-semibold hover:scale-105 transition">
@@ -68,9 +39,12 @@
                 </button>
 
                 <!-- EXPORT EXCEL -->
-                <button @click="exportCSV"
-                    class="bg-gradient-to-r from-yellow-500 to-orange-500 text-white px-6 py-2 rounded-xl ml-auto hover:scale-105 transition font-semibold">
-                    📤 Export CSV
+                <button @click="handleDirectExport"
+                    class="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-6 py-2 rounded-xl ml-auto hover:scale-105 transition font-semibold flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                    </svg>
+                    Exporter Excel
                 </button>
             </div>
 
@@ -204,9 +178,14 @@
 import { ref, computed, onMounted } from 'vue'
 import { useDataStore } from '../../stores/data.js'
 import { useNotification } from '../../composables/useNotification.js'
+import { useExport } from '../../composables/useExport.js'
+import AdminHeader from '../../components/layout/AdminHeader.vue'
 
 const dataStore = useDataStore()
 const { success, error } = useNotification()
+
+// Utiliser seulement les fonctions nécessaires du composable d'exportation
+const { generateExcelData, downloadExcel } = useExport()
 
 /* LISTE */
 const enfants = computed(() => dataStore.children)
@@ -316,23 +295,152 @@ function getInitials(n, p) {
     return (n[0] + p[0]).toUpperCase()
 }
 
-/* Export CSV */
-function exportCSV() {
+/* Export direct Excel */
+function handleDirectExport() {
+  try {
+    // Créer les données Excel directement pour les enfants
+    const workbook = [{
+      name: 'Enfants',
+      data: [
+        ['Nom', 'Prénom', 'Âge', 'Date d\'inscription'],
+        ...filteredEnfants.value.map(enfant => [
+          enfant.nom || '',
+          enfant.prenom || '',
+          enfant.age || '',
+          enfant.createdAt ? new Date(enfant.createdAt).toLocaleDateString('fr-FR') : new Date().toLocaleDateString('fr-FR')
+        ])
+      ]
+    }]
 
-    const sortedEnfants = [...filteredEnfants.value].sort((a, b) => a.age - b.age)
-
-    let csv = "nom;prenom;age\n"
-     sortedEnfants.forEach(e => {
-        csv += `${e.nom};${e.prenom};${e.age}\n`
+    // Créer le fichier Excel avec formatage professionnel
+    let excelContent = ''
+    
+    // En-tête du fichier Excel
+    excelContent += '<?xml version="1.0"?>\n'
+    excelContent += '<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"\n'
+    excelContent += ' xmlns:o="urn:schemas-microsoft-com:office:office"\n'
+    excelContent += ' xmlns:x="urn:schemas-microsoft-com:office:excel"\n'
+    excelContent += ' xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"\n'
+    excelContent += ' xmlns:html="http://www.w3.org/TR/REC-html40">\n'
+    
+    // Styles Excel
+    excelContent += '<Styles>\n'
+    excelContent += '<Style ss:ID="HeaderStyle">\n'
+    excelContent += '<Font ss:Bold="1" ss:Size="12" ss:Color="#FFFFFF"/>\n'
+    excelContent += '<Interior ss:Color="#4472C4" ss:Pattern="Solid"/>\n'
+    excelContent += '<Alignment ss:Horizontal="Center" ss:Vertical="Center"/>\n'
+    excelContent += '<Borders>\n'
+    excelContent += '<Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1"/>\n'
+    excelContent += '<Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1"/>\n'
+    excelContent += '<Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1"/>\n'
+    excelContent += '<Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="1"/>\n'
+    excelContent += '</Borders>\n'
+    excelContent += '</Style>\n'
+    excelContent += '<Style ss:ID="DataStyle">\n'
+    excelContent += '<Font ss:Size="10"/>\n'
+    excelContent += '<Alignment ss:Horizontal="Left" ss:Vertical="Center"/>\n'
+    excelContent += '<Borders>\n'
+    excelContent += '<Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#E1E5E9"/>\n'
+    excelContent += '<Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#E1E5E9"/>\n'
+    excelContent += '<Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#E1E5E9"/>\n'
+    excelContent += '<Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#E1E5E9"/>\n'
+    excelContent += '</Borders>\n'
+    excelContent += '</Style>\n'
+    excelContent += '<Style ss:ID="TitleStyle">\n'
+    excelContent += '<Font ss:Bold="1" ss:Size="16" ss:Color="#2F5597"/>\n'
+    excelContent += '<Alignment ss:Horizontal="Center" ss:Vertical="Center"/>\n'
+    excelContent += '</Style>\n'
+    excelContent += '</Styles>\n'
+    
+    // Créer la feuille
+    const sheet = workbook[0]
+    excelContent += `<Worksheet ss:Name="${sheet.name}">\n`
+    excelContent += '<Table>\n'
+    
+    // Définir les colonnes
+    const maxCols = Math.max(...sheet.data.map(row => row.length))
+    for (let i = 0; i < maxCols; i++) {
+      excelContent += '<Column ss:AutoFitWidth="1" ss:Width="120"/>\n'
+    }
+    
+    // Titre
+    excelContent += '<Row ss:Height="30">\n'
+    excelContent += `<Cell ss:MergeAcross="${maxCols - 1}" ss:StyleID="TitleStyle">\n`
+    excelContent += `<Data ss:Type="String">👶 Liste des Enfants - MERCV</Data>\n`
+    excelContent += '</Cell>\n'
+    excelContent += '</Row>\n'
+    
+    // Date d'export
+    const exportDate = new Date().toLocaleDateString('fr-FR', { 
+      weekday: 'long', 
+      year: 'numeric', 
+      month: 'long', 
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
     })
-  
-
-    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement("a")
-    a.href = url
-    a.download = "liste_enfants.csv"
-    a.click()
+    excelContent += '<Row ss:Height="20">\n'
+    excelContent += `<Cell ss:MergeAcross="${maxCols - 1}" ss:StyleID="DataStyle">\n`
+    excelContent += `<Data ss:Type="String">Exporté le ${exportDate}</Data>\n`
+    excelContent += '</Cell>\n'
+    excelContent += '</Row>\n'
+    
+    // Ligne vide
+    excelContent += '<Row ss:Height="10"></Row>\n'
+    
+    // Données
+    sheet.data.forEach((row, rowIndex) => {
+      const isHeader = rowIndex === 0
+      const rowHeight = isHeader ? '25' : '20'
+      
+      excelContent += `<Row ss:Height="${rowHeight}">\n`
+      
+      row.forEach((cell) => {
+        const cellStyle = isHeader ? 'HeaderStyle' : 'DataStyle'
+        const cellValue = String(cell || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        
+        excelContent += `<Cell ss:StyleID="${cellStyle}">\n`
+        excelContent += `<Data ss:Type="String">${cellValue}</Data>\n`
+        excelContent += '</Cell>\n'
+      })
+      
+      excelContent += '</Row>\n'
+    })
+    
+    // Total
+    excelContent += '<Row ss:Height="10"></Row>\n'
+    excelContent += '<Row>\n'
+    excelContent += '<Cell ss:StyleID="DataStyle">\n'
+    excelContent += `<Data ss:Type="String">📊 Total: ${filteredEnfants.value.length} enfants</Data>\n`
+    excelContent += '</Cell>\n'
+    excelContent += '</Row>\n'
+    
+    excelContent += '</Table>\n'
+    excelContent += '</Worksheet>\n'
+    excelContent += '</Workbook>\n'
+    
+    // Télécharger le fichier
+    const blob = new Blob([excelContent], { 
+      type: 'application/vnd.ms-excel;charset=utf-8' 
+    })
+    const url = window.URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    
+    const filename = `Liste_Enfants_MERCV_${new Date().toISOString().split('T')[0]}.xls`
+    link.download = filename
+    
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    window.URL.revokeObjectURL(url)
+    
+    success(`Export réussi ! ${filteredEnfants.value.length} enfants exportés.`)
+    
+  } catch (err) {
+    error('Erreur lors de l\'exportation')
+    console.error(err)
+  }
 }
 </script>
 

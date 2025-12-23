@@ -26,22 +26,7 @@
               {{ images[currentIndex].text }}
             </h2>
             
-            <!-- Boutons d'action -->
-            <div class="flex flex-col sm:flex-row gap-4 animate-fadeInUp" style="animation-delay: 0.5s;">
-              <router-link
-                to="/login"
-                class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-8 py-3 rounded-full font-semibold text-lg hover:from-blue-700 hover:to-indigo-700 transition-all transform hover:scale-105 shadow-lg hover:shadow-xl"
-              >
-                Se connecter
-              </router-link>
-              
-              <router-link
-                to="/register"
-                class="bg-transparent border-2 border-white text-white px-8 py-3 rounded-full font-semibold text-lg hover:bg-white hover:text-gray-900 transition-all transform hover:scale-105"
-              >
-                S'inscrire
-              </router-link>
-            </div>
+            
           </div>
         </div>
       </div>

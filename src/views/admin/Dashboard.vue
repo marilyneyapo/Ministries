@@ -21,9 +21,12 @@
       <main
         class="flex-1 p-4 md:p-6 bg-gray-50 transition-all duration-300"
       >
-       <transition name="fade-slide" mode="out-in">
-            <router-view :key="$route.fullPath" />
+       <router-view v-slot="{ Component }">
+        <transition name="fade-slide" mode="out-in">
+          <component :is="Component" />
         </transition>
+      </router-view>
+
       </main>
     </div>
 
@@ -62,23 +65,43 @@ onUnmounted(() => {
 })
 </script>
 <style scoped>
-    .fade-slide-enter-active, .fade-slide-leave-active {
-    transition: all 0.3s ease;
-    }
-    .fade-slide-enter-from {
-    opacity: 0;
-    transform: translateX(20px);
-    }
-    .fade-slide-enter-to {
-    opacity: 1;
-    transform: translateX(0);
-    }
-    .fade-slide-leave-from {
-    opacity: 1;
-    transform: translateX(0);
-    }
-    .fade-slide-leave-to {
-    opacity: 0;
-    transform: translateX(-20px);
-    }
+/* Transition plus fluide et professionnelle */
+.fade-slide-enter-active {
+  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.fade-slide-leave-active {
+  transition: all 0.3s cubic-bezier(0.55, 0.06, 0.68, 0.19);
+}
+
+.fade-slide-enter-from {
+  opacity: 0;
+  transform: translateY(10px) scale(0.98);
+}
+
+.fade-slide-enter-to {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.fade-slide-leave-from {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.fade-slide-leave-to {
+  opacity: 0;
+  transform: translateY(-5px) scale(1.02);
+}
+
+/* Animation pour le main content */
+main {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Amélioration de l'overlay */
+.fixed.inset-0.bg-black\/50 {
+  transition: opacity 0.3s ease-in-out;
+  backdrop-filter: blur(2px);
+}
 </style>
